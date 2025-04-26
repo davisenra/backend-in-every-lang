@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Http\JsonResponse;
+use App\Http\ResponseFactory;
 use Monolog\Logger;
 use React\Http\Message\Response;
 use React\Http\Message\ServerRequest;
@@ -25,7 +25,7 @@ final readonly class HttpErrorHandler
                     'endpoint' => $request->getUri(),
                 ],
             );
-            return JsonResponse::serverError(['error' => $e->getMessage()]);
+            return ResponseFactory::serverError(['error' => $e->getMessage()]);
         }
     }
 }

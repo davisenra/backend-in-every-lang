@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Actions;
+namespace App\Encounters\Actions;
 
-use App\Http\JsonResponse;
-use App\Model\Encounter;
+use App\Http\HttpAction;
+use App\Http\ResponseFactory;
+use App\Encounters\Encounter;
 use Clue\React\SQLite\DatabaseInterface;
 use Clue\React\SQLite\Result;
 use React\Http\Message\Response;
@@ -23,7 +24,7 @@ final readonly class ListEncounters implements HttpAction
         $result = await($this->db->query($this->getQuery()));
         $encounters = array_map(fn($r) => Encounter::fromDatabaseRow($r), $result->rows);
 
-        return JsonResponse::ok(['encounters' => $encounters]);
+        return ResponseFactory::ok(['encounters' => $encounters]);
     }
 
     private function getQuery(): string

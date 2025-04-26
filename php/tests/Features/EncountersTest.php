@@ -25,7 +25,6 @@ class EncountersTest extends HttpTestCase
     #[Test]
     public function testShowExistingEncounter(): void
     {
-        // assumes you ran the migration
         $existingId = 1337;
         $response = $this->get("/encounters/$existingId");
 
@@ -44,5 +43,46 @@ class EncountersTest extends HttpTestCase
 
         $this->assertIsJson($response)
             ->assertStatusCode(StatusCodeInterface::STATUS_NOT_FOUND);
+    }
+
+    #[Test]
+    public function testCreateEncounter(): void
+    {
+        $payload = [
+            'location' => 'Redwood Forest',
+            'description' => 'Spotted near a creek at sunset',
+            'species_id' => 5173,
+        ];
+
+        $response = $this->post('/encounters', $payload);
+
+        $this->assertIsJson($response)
+            ->assertStatusCode(StatusCodeInterface::STATUS_CREATED)
+            ->assertIsObject()
+            ->assertIsObject('encounter')
+            ->assertIsNumeric('encounter.id')
+            ->assertSame('Redwood Forest', 'encounter.location')
+            ->assertSame('Spotted near a creek at sunset', 'encounter.description')
+            ->assertSame(5173, 'encounter.speciesId');
+    }
+
+    #[Test]
+    public function testDeleteEncounter(): void
+    {
+        $existingId = 1336;
+        $response = $this->delete("/encounters/$existingId");
+        $this->assertEquals(StatusCodeInterface::STATUS_NO_CONTENT, $response->getStatusCode());
+        $this->assertEmpty((string) $response->getBody());
+    }
+
+    #[Test]
+    public function testDeleteNonExistentEncounter(): void
+    {
+        $nonExistentId = 99999;
+        $response = $this->delete("/encounters/$nonExistentId");
+
+        // should still return a 204 if the entity does not exists
+        $this->assertEquals(StatusCodeInterface::STATUS_NO_CONTENT, $response->getStatusCode());
+        $this->assertEmpty((string) $response->getBody());
     }
 }

@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Actions;
+namespace App\Encounters\Actions;
 
-use App\Http\JsonResponse;
-use App\Model\Encounter;
+use App\Http\HttpAction;
+use App\Http\ResponseFactory;
+use App\Encounters\Encounter;
 use Clue\React\SQLite\DatabaseInterface;
 use Clue\React\SQLite\Result;
 use React\Http\Message\Response;
@@ -23,7 +24,7 @@ final readonly class ShowEncounter implements HttpAction
         $id = $routeParams['id'] ?? null;
 
         if (!is_numeric($id)) {
-            return JsonResponse::badRequest(['error' => 'Invalid encounter ID']);
+            return ResponseFactory::badRequest(['error' => 'Invalid encounter ID']);
         }
 
         /** @var Result $result */
@@ -31,12 +32,12 @@ final readonly class ShowEncounter implements HttpAction
         $row = $result->rows[0] ?? null;
 
         if ($row === null) {
-            return JsonResponse::notFound(['error' => 'Encounter not found']);
+            return ResponseFactory::notFound(['error' => 'Encounter not found']);
         }
 
         $encounter = Encounter::fromDatabaseRow($row);
 
-        return JsonResponse::ok(['encounter' => $encounter]);
+        return ResponseFactory::ok(['encounter' => $encounter]);
     }
 
     private function getQuery(): string

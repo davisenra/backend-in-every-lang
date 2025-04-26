@@ -25,7 +25,6 @@ class SpeciesTest extends HttpTestCase
     #[Test]
     public function testShowExistingSpecies(): void
     {
-        // assumes you ran the migration
         $existingId = 5173;
         $response = $this->get("/species/$existingId");
 

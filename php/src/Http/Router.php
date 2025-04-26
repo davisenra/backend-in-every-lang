@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http;
 
-use App\Actions\HttpAction;
 use DI\Container;
 use React\Http\Message\Response;
 use React\Http\Message\ServerRequest;

@@ -2,15 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Model;
+namespace App\Species;
 
-final readonly class Encounter
+final readonly class Species
 {
     public function __construct(
         public int $id,
-        public string $location,
-        public string $description,
-        public int $speciesId,
+        public string $name,
     ) {}
 
     /**
@@ -20,9 +18,7 @@ final readonly class Encounter
     {
         return new self(
             id: (int) $row['id'],
-            location: $row['location'],
-            description: $row['description'],
-            speciesId: (int) $row['species_id'],
+            name: $row['name'],
         );
     }
 }

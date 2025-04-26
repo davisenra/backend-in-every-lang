@@ -35,6 +35,28 @@ class HttpTestCase extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $payload
+     * @throws \JsonException
+     */
+    protected function post(string $uri, array $payload): Response
+    {
+        return $this->request(new ServerRequest(
+            method: Method::POST->name,
+            url: $uri,
+            headers: ['Content-Type' => 'application/json'],
+            body: json_encode($payload, JSON_THROW_ON_ERROR),
+        ));
+    }
+
+    protected function delete(string $uri): Response
+    {
+        return $this->request(new ServerRequest(
+            method: Method::DELETE->name,
+            url: $uri,
+        ));
+    }
+
+    /**
      * @throws \JsonException
      */
     protected function assertIsJson(Response $response): HttpResponseAssertions

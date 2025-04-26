@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Actions\ListEncounters;
-use App\Actions\ListSpecies;
-use App\Actions\ShowEncounter;
-use App\Actions\ShowSpecies;
+use App\Encounters\Actions\DeleteEncounter;
+use App\Encounters\Actions\ListEncounters;
+use App\Species\Actions\ListSpecies;
+use App\Encounters\Actions\RegisterEncounter;
+use App\Encounters\Actions\ShowEncounter;
+use App\Species\Actions\ShowSpecies;
 use App\Http\Method;
 use App\Http\Router;
 
@@ -18,6 +20,8 @@ final readonly class Routes
         $router
             ->addRoute(Method::GET, '/encounters', ListEncounters::class)
             ->addRoute(Method::GET, '/encounters/{id:[0-9]+}', ShowEncounter::class)
+            ->addRoute(Method::DELETE, '/encounters/{id:[0-9]+}', DeleteEncounter::class)
+            ->addRoute(Method::POST, '/encounters', RegisterEncounter::class)
             ->addRoute(Method::GET, '/species', ListSpecies::class)
             ->addRoute(Method::GET, '/species/{id:[0-9]+}', ShowSpecies::class);
     }

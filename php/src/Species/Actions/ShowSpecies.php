@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Actions;
+namespace App\Species\Actions;
 
-use App\Http\JsonResponse;
-use App\Model\Species;
+use App\Http\HttpAction;
+use App\Http\ResponseFactory;
+use App\Species\Species;
 use Clue\React\SQLite\DatabaseInterface;
 use Clue\React\SQLite\Result;
 use React\Http\Message\Response;
@@ -23,7 +24,7 @@ final readonly class ShowSpecies implements HttpAction
         $id = $routeParams['id'] ?? null;
 
         if (!is_numeric($id)) {
-            return JsonResponse::badRequest(['error' => 'Invalid species ID']);
+            return ResponseFactory::badRequest(['error' => 'Invalid species ID']);
         }
 
         /** @var Result $result */
@@ -31,12 +32,12 @@ final readonly class ShowSpecies implements HttpAction
         $row = $result->rows[0] ?? null;
 
         if ($row === null) {
-            return JsonResponse::notFound(['error' => 'Species not found']);
+            return ResponseFactory::notFound(['error' => 'Species not found']);
         }
 
         $species = Species::fromDatabaseRow($row);
 
-        return JsonResponse::ok(['species' => $species]);
+        return ResponseFactory::ok(['species' => $species]);
     }
 
     private function getQuery(): string

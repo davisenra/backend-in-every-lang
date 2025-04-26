@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions;
+namespace App\Http;
 
 use React\Http\Message\Response;
 use React\Http\Message\ServerRequest;

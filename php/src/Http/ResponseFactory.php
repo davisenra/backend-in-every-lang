@@ -7,7 +7,7 @@ namespace App\Http;
 use Fig\Http\Message\StatusCodeInterface;
 use React\Http\Message\Response;
 
-final class JsonResponse
+final class ResponseFactory
 {
     /**
      * @param array<string, mixed> $data
@@ -71,5 +71,10 @@ final class JsonResponse
     public static function created(array $data, array $headers = []): Response
     {
         return self::build($data, StatusCodeInterface::STATUS_CREATED, $headers);
+    }
+
+    public static function noContent(): Response
+    {
+        return new Response(StatusCodeInterface::STATUS_NO_CONTENT);
     }
 }
