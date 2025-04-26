@@ -13,15 +13,28 @@ use React\Http\Message\ServerRequest;
 
 use function React\Async\await;
 
-final readonly class ListSpecies implements HttpAction
+final readonly class ShowSpecies implements HttpAction
 {
     public function __construct(private DatabaseInterface $db) {}
 
     public function __invoke(ServerRequest $request): Response
     {
+        $routeParams = $request->getAttribute('routeParams', []);
+        $id = $routeParams['id'] ?? null;
+
+        if (!is_numeric($id)) {
+            return JsonResponse::badRequest(['error' => 'Invalid species ID']);
+        }
+
         /** @var Result $result */
-        $result = await($this->db->query($this->getQuery()));
-        $species = array_map(fn($r) => Species::fromDatabaseRow($r), $result->rows);
+        $result = await($this->db->query($this->getQuery(), [$id]));
+        $row = $result->rows[0] ?? null;
+
+        if ($row === null) {
+            return JsonResponse::notFound(['error' => 'Species not found']);
+        }
+
+        $species = Species::fromDatabaseRow($row);
 
         return JsonResponse::ok(['species' => $species]);
     }
@@ -33,7 +46,7 @@ final readonly class ListSpecies implements HttpAction
                 s.id as "id",
                 s.name as "name"
             FROM species s
-            ORDER BY s.id DESC
+            WHERE s.id = ?
         SQL;
     }
 }

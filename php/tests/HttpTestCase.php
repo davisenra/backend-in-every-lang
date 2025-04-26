@@ -33,4 +33,12 @@ class HttpTestCase extends TestCase
     {
         return $this->request(new ServerRequest(Method::GET->name, $uri));
     }
+
+    /**
+     * @throws \JsonException
+     */
+    protected function assertIsJson(Response $response): HttpResponseAssertions
+    {
+        return new HttpResponseAssertions($response);
+    }
 }

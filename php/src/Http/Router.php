@@ -12,7 +12,7 @@ use React\Http\Message\ServerRequest;
 final class Router
 {
     /**
-     * @var array<string, array<string, class-string<HttpAction>>> $routes
+     * @var array<string, array<string, array{action: class-string<HttpAction>, regex: string, params: array<string> }>> $routes
      */
     private array $routes = [];
 
@@ -23,14 +23,21 @@ final class Router
         $method = Method::fromString($request->getMethod());
         $path = $request->getUri()->getPath();
 
-        $actionClassString = $this->routes[$method->name][$path]
-            ?? throw new \RuntimeException(
-                "No route found for {$method->name} {$path}",
-                404,
-            );
+        foreach ($this->routes[$method->name] ?? [] as $routeData) {
+            if (preg_match($routeData['regex'], $path, $matches)) {
+                $params = [];
+                foreach ($routeData['params'] as $index => $paramName) {
+                    if (isset($matches[$index + 1])) {
+                        $params[$paramName] = $matches[$index + 1];
+                    }
+                }
 
-        $action = $this->container->get($actionClassString);
-        return $action($request);
+                $action = $this->container->get($routeData['action']);
+                return $action($request->withAttribute('routeParams', $params));
+            }
+        }
+
+        return new Response(404);
     }
 
     /**
@@ -49,7 +56,38 @@ final class Router
             );
         }
 
-        $this->routes[$method->name][$path] = $actionClassString;
+        $paramPatterns = [];
+        preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $path, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match) {
+            $fullMatch = $match[0];
+            $paramName = $match[1];
+            $paramPattern = $match[2] ?? '[^/]+';
+
+            $paramPatterns[$fullMatch] = [
+                'name' => $paramName,
+                'pattern' => $paramPattern,
+            ];
+        }
+
+        // first, escape the full path for use in a regex
+        $pattern = preg_quote($path, '/');
+
+        // then replace the parameter placeholders with their regex patterns
+        $paramNames = [];
+        foreach ($paramPatterns as $placeholder => $data) {
+            $escapedPlaceholder = preg_quote($placeholder, '/');
+            $paramNames[] = $data['name'];
+            $pattern = str_replace($escapedPlaceholder, '(' . $data['pattern'] . ')', $pattern);
+        }
+
+        $regex = '/^' . $pattern . '$/';
+
+        $this->routes[$method->name][$path] = [
+            'action' => $actionClassString,
+            'regex' => $regex,
+            'params' => $paramNames,
+        ];
 
         return $this;
     }

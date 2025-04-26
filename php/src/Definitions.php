@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Actions\ListEncounters;
-use App\Actions\ListSpecies;
-use App\Http\Method;
 use App\Http\Middleware\HttpErrorHandler;
 use App\Http\Middleware\ServerLogger;
 use App\Http\Router;
@@ -29,32 +26,26 @@ final class Definitions
         return [
 
             Router::class => function (Container $container): Router {
-                return new Router($container)
-                    ->addRoute(Method::GET, '/encounters', ListEncounters::class)
-                    ->addRoute(Method::GET, '/species', ListSpecies::class);
+                $router = new Router($container);
+                Routes::registerRoutes($router);
+                return $router;
             },
 
             HttpServer::class => function (Container $container): HttpServer {
                 $logger = $container->get(Logger::class);
-
-                $httpServer = new HttpServer(
+                $middlewares = [
                     $container->get(HttpErrorHandler::class),
                     $container->get(ServerLogger::class),
                     $container->get(Router::class),
-                );
-
+                ];
+                $httpServer = new HttpServer(...$middlewares);
                 $httpServer->on('error', fn(Throwable $error) => $logger->error($error));
-
                 return $httpServer;
             },
 
-            DatabaseInterface::class => function (): DatabaseInterface {
-                return new Factory()->openLazy(dirname(__DIR__) . '/database.db');
-            },
+            DatabaseInterface::class => fn() => new Factory()->openLazy(dirname(__DIR__) . '/database.db'),
 
-            Logger::class => function (): Logger {
-                return new Logger('app', [new StreamHandler(STDOUT)]);
-            },
+            Logger::class => fn() => new Logger('app', [new StreamHandler(STDOUT)]),
 
         ];
     }

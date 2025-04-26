@@ -15,6 +15,34 @@ class SpeciesTest extends HttpTestCase
     {
         $response = $this->get('/species');
 
-        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
+        $this->assertIsJson($response)
+            ->assertStatusCode(StatusCodeInterface::STATUS_OK)
+            ->assertIsObject()
+            ->assertIsArray('species')
+            ->assertIsNumeric('species.0.id');
+    }
+
+    #[Test]
+    public function testShowExistingSpecies(): void
+    {
+        // assumes you ran the migration
+        $existingId = 5173;
+        $response = $this->get("/species/$existingId");
+
+        $this->assertIsJson($response)
+            ->assertStatusCode(StatusCodeInterface::STATUS_OK)
+            ->assertIsObject()
+            ->assertIsObject('species')
+            ->assertIsNumeric('species.id')
+            ->assertSame($existingId, 'species.id');
+    }
+
+    #[Test]
+    public function testShowNonExistentSpecies(): void
+    {
+        $response = $this->get("/species/99999999");
+
+        $this->assertIsJson($response)
+            ->assertStatusCode(StatusCodeInterface::STATUS_NOT_FOUND);
     }
 }

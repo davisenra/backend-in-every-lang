@@ -15,6 +15,34 @@ class EncountersTest extends HttpTestCase
     {
         $response = $this->get('/encounters');
 
-        $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
+        $this->assertIsJson($response)
+            ->assertStatusCode(StatusCodeInterface::STATUS_OK)
+            ->assertIsObject()
+            ->assertIsArray('encounters')
+            ->assertIsNumeric('encounters.0.id');
+    }
+
+    #[Test]
+    public function testShowExistingEncounter(): void
+    {
+        // assumes you ran the migration
+        $existingId = 1337;
+        $response = $this->get("/encounters/$existingId");
+
+        $this->assertIsJson($response)
+            ->assertStatusCode(StatusCodeInterface::STATUS_OK)
+            ->assertIsObject()
+            ->assertIsObject('encounter')
+            ->assertIsNumeric('encounter.id')
+            ->assertSame($existingId, 'encounter.id');
+    }
+
+    #[Test]
+    public function testShowNonExistentEncounter(): void
+    {
+        $response = $this->get("/encounters/99999999");
+
+        $this->assertIsJson($response)
+            ->assertStatusCode(StatusCodeInterface::STATUS_NOT_FOUND);
     }
 }

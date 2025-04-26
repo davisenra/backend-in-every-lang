@@ -13,17 +13,30 @@ use React\Http\Message\ServerRequest;
 
 use function React\Async\await;
 
-final readonly class ListEncounters implements HttpAction
+final readonly class ShowEncounter implements HttpAction
 {
     public function __construct(private DatabaseInterface $db) {}
 
     public function __invoke(ServerRequest $request): Response
     {
-        /** @var Result $result */
-        $result = await($this->db->query($this->getQuery()));
-        $encounters = array_map(fn($r) => Encounter::fromDatabaseRow($r), $result->rows);
+        $routeParams = $request->getAttribute('routeParams', []);
+        $id = $routeParams['id'] ?? null;
 
-        return JsonResponse::ok(['encounters' => $encounters]);
+        if (!is_numeric($id)) {
+            return JsonResponse::badRequest(['error' => 'Invalid encounter ID']);
+        }
+
+        /** @var Result $result */
+        $result = await($this->db->query($this->getQuery(), [$id]));
+        $row = $result->rows[0] ?? null;
+
+        if ($row === null) {
+            return JsonResponse::notFound(['error' => 'Encounter not found']);
+        }
+
+        $encounter = Encounter::fromDatabaseRow($row);
+
+        return JsonResponse::ok(['encounter' => $encounter]);
     }
 
     private function getQuery(): string
@@ -35,7 +48,7 @@ final readonly class ListEncounters implements HttpAction
                 e.description as "description",
                 e.species_id as "species_id"
             FROM encounters e
-            ORDER BY e.id DESC
+            WHERE e.id = ?
         SQL;
     }
 }
