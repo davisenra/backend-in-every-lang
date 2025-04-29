@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests;
+namespace Tests\Support;
 
 use PHPUnit\Framework\Assert;
 use React\Http\Message\Response;

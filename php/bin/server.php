@@ -11,8 +11,14 @@ use React\Socket\SocketServer;
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 $container = new Container(Definitions::getDefinitions());
+$config = $container->get('config');
 $logger = $container->get(Logger::class);
+$socket = $container->get(SocketServer::class);
 $server = $container->get(HttpServer::class);
-$socket = new SocketServer('127.0.0.1:9997');
 $server->listen($socket);
-$logger->info('Server listening', ['address' => '127.0.0.1:9997']);
+$logger->info(
+    message: 'Server listening',
+    context: [
+        'address' => sprintf('http://%s:%s', $config['APP_HOST'], $config['APP_PORT']),
+    ],
+);

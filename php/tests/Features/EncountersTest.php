@@ -5,27 +5,35 @@ declare(strict_types=1);
 namespace Features;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Tests\HttpTestCase;
+use Tests\Support\ApplicationTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-class EncountersTest extends HttpTestCase
+use function React\Async\await;
+
+class EncountersTest extends ApplicationTestCase
 {
     #[Test]
     public function testListEncounters(): void
     {
+        await($this->database->exec('INSERT INTO encounters (location, description, species_id) VALUES ("Foo", "Bar", "999")'));
+
         $response = $this->get('/encounters');
 
         $this->assertIsJson($response)
             ->assertStatusCode(StatusCodeInterface::STATUS_OK)
             ->assertIsObject()
             ->assertIsArray('encounters')
-            ->assertIsNumeric('encounters.0.id');
+            ->assertIsNumeric('encounters.0.id')
+            ->assertSame('Foo', 'encounters.0.location')
+            ->assertSame('Bar', 'encounters.0.description');
     }
 
     #[Test]
     public function testShowExistingEncounter(): void
     {
-        $existingId = 1337;
+        $result = await($this->database->query('INSERT INTO encounters (location, description, species_id) VALUES ("Foo", "Bar", "999")'));
+
+        $existingId = $result->insertId;
         $response = $this->get("/encounters/$existingId");
 
         $this->assertIsJson($response)
@@ -33,7 +41,9 @@ class EncountersTest extends HttpTestCase
             ->assertIsObject()
             ->assertIsObject('encounter')
             ->assertIsNumeric('encounter.id')
-            ->assertSame($existingId, 'encounter.id');
+            ->assertSame($existingId, 'encounter.id')
+            ->assertSame('Foo', 'encounter.location')
+            ->assertSame('Bar', 'encounter.description');
     }
 
     #[Test]
@@ -69,7 +79,9 @@ class EncountersTest extends HttpTestCase
     #[Test]
     public function testDeleteEncounter(): void
     {
-        $existingId = 1336;
+        $result = await($this->database->query('INSERT INTO encounters (location, description, species_id) VALUES ("Foo", "Bar", "999")'));
+
+        $existingId = $result->insertId;
         $response = $this->delete("/encounters/$existingId");
         $this->assertEquals(StatusCodeInterface::STATUS_NO_CONTENT, $response->getStatusCode());
         $this->assertEmpty((string) $response->getBody());

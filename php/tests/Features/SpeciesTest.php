@@ -5,27 +5,34 @@ declare(strict_types=1);
 namespace Features;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Tests\HttpTestCase;
+use Tests\Support\ApplicationTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-class SpeciesTest extends HttpTestCase
+use function React\Async\await;
+
+class SpeciesTest extends ApplicationTestCase
 {
     #[Test]
     public function testListSpecies(): void
     {
+        await($this->database->exec('INSERT INTO species (name) VALUES ("Foo")'));
+
         $response = $this->get('/species');
 
         $this->assertIsJson($response)
             ->assertStatusCode(StatusCodeInterface::STATUS_OK)
             ->assertIsObject()
             ->assertIsArray('species')
-            ->assertIsNumeric('species.0.id');
+            ->assertIsNumeric('species.0.id')
+            ->assertSame('Foo', 'species.0.name');
     }
 
     #[Test]
     public function testShowExistingSpecies(): void
     {
-        $existingId = 5173;
+        $result = await($this->database->query('INSERT INTO species (name) VALUES ("Foo")'));
+
+        $existingId = $result->insertId;
         $response = $this->get("/species/$existingId");
 
         $this->assertIsJson($response)
