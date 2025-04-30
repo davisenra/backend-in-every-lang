@@ -7,6 +7,7 @@ namespace App;
 use App\Http\Middleware\HttpErrorHandler;
 use App\Http\Middleware\ServerLogger;
 use App\Http\Router;
+use App\Http\Routes;
 use Clue\React\SQLite\DatabaseInterface;
 use Clue\React\SQLite\Factory;
 use DI\Container;

@@ -13,7 +13,7 @@ use function React\Async\await;
 class EncountersTest extends ApplicationTestCase
 {
     #[Test]
-    public function testListEncounters(): void
+    public function listEncounters(): void
     {
         await($this->database->exec('INSERT INTO encounters (location, description, species_id) VALUES ("Foo", "Bar", "999")'));
 
@@ -29,7 +29,7 @@ class EncountersTest extends ApplicationTestCase
     }
 
     #[Test]
-    public function testShowExistingEncounter(): void
+    public function showExistingEncounter(): void
     {
         $result = await($this->database->query('INSERT INTO encounters (location, description, species_id) VALUES ("Foo", "Bar", "999")'));
 
@@ -47,7 +47,7 @@ class EncountersTest extends ApplicationTestCase
     }
 
     #[Test]
-    public function testShowNonExistentEncounter(): void
+    public function showNonExistentEncounter(): void
     {
         $response = $this->get("/encounters/99999999");
 
@@ -56,7 +56,7 @@ class EncountersTest extends ApplicationTestCase
     }
 
     #[Test]
-    public function testCreateEncounter(): void
+    public function createEncounter(): void
     {
         $payload = [
             'location' => 'Redwood Forest',
@@ -77,7 +77,7 @@ class EncountersTest extends ApplicationTestCase
     }
 
     #[Test]
-    public function testDeleteEncounter(): void
+    public function deleteEncounter(): void
     {
         $result = await($this->database->query('INSERT INTO encounters (location, description, species_id) VALUES ("Foo", "Bar", "999")'));
 
@@ -88,7 +88,7 @@ class EncountersTest extends ApplicationTestCase
     }
 
     #[Test]
-    public function testDeleteNonExistentEncounter(): void
+    public function deleteNonExistentEncounter(): void
     {
         $nonExistentId = 99999;
         $response = $this->delete("/encounters/$nonExistentId");

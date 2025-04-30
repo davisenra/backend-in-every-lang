@@ -13,7 +13,7 @@ use function React\Async\await;
 class SpeciesTest extends ApplicationTestCase
 {
     #[Test]
-    public function testListSpecies(): void
+    public function listSpecies(): void
     {
         await($this->database->exec('INSERT INTO species (name) VALUES ("Foo")'));
 
@@ -28,7 +28,7 @@ class SpeciesTest extends ApplicationTestCase
     }
 
     #[Test]
-    public function testShowExistingSpecies(): void
+    public function showExistingSpecies(): void
     {
         $result = await($this->database->query('INSERT INTO species (name) VALUES ("Foo")'));
 
@@ -44,7 +44,7 @@ class SpeciesTest extends ApplicationTestCase
     }
 
     #[Test]
-    public function testShowNonExistentSpecies(): void
+    public function showNonExistentSpecies(): void
     {
         $response = $this->get("/species/99999999");
 
