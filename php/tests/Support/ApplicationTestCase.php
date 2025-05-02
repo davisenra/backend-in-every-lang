@@ -76,6 +76,22 @@ abstract class ApplicationTestCase extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $payload
+     * @throws \JsonException
+     */
+    protected function patch(string $uri, array $payload): Response
+    {
+        $request = new ServerRequest(
+            method: Method::PATCH->name,
+            url: $uri,
+            headers: ['Content-Type' => 'application/json'],
+            body: json_encode($payload, JSON_THROW_ON_ERROR),
+        );
+
+        return $this->request($request);
+    }
+
+    /**
      * @throws \JsonException
      */
     protected function assertIsJson(Response $response): HttpResponseAssertions

@@ -97,4 +97,44 @@ class EncountersTest extends ApplicationTestCase
         $this->assertEquals(StatusCodeInterface::STATUS_NO_CONTENT, $response->getStatusCode());
         $this->assertEmpty((string) $response->getBody());
     }
+
+    #[Test]
+    public function updateExistingEncounter(): void
+    {
+        $result = await($this->database->query(
+            'INSERT INTO encounters (location, description, species_id) VALUES ("Old Location", "Old Desc", 999)',
+        ));
+
+        $existingId = $result->insertId;
+
+        $payload = [
+            'location' => 'New Location',
+            'description' => 'Updated Description',
+        ];
+
+        $response = $this->patch("/encounters/$existingId", $payload);
+
+        $this->assertIsJson($response)
+            ->assertStatusCode(StatusCodeInterface::STATUS_OK)
+            ->assertIsObject()
+            ->assertIsObject('encounter')
+            ->assertSame($existingId, 'encounter.id')
+            ->assertSame('New Location', 'encounter.location')
+            ->assertSame('Updated Description', 'encounter.description');
+    }
+
+    #[Test]
+    public function updateNonExistentEncounter(): void
+    {
+        $nonExistentId = 99999;
+        $payload = [
+            'location' => 'New Location',
+            'description' => 'Updated Description',
+        ];
+
+        $response = $this->patch("/encounters/$nonExistentId", $payload);
+
+        $this->assertIsJson($response)
+            ->assertStatusCode(StatusCodeInterface::STATUS_NOT_FOUND);
+    }
 }

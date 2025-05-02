@@ -51,6 +51,7 @@ final class Definitions
                 ];
                 $httpServer = new HttpServer(...$middlewares);
                 $httpServer->on('error', fn(Throwable $error) => $logger->error($error));
+
                 return $httpServer;
             },
 

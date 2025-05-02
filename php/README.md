@@ -49,7 +49,7 @@ to Node.js. The server runs continuously until explicitly stopped.
 
 SocketServer → HttpServer → Middleware Stack → Router → HttpAction
 
-## Instructions
+## How to Run
 
 ### Datasource
 
