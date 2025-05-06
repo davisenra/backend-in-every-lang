@@ -1,6 +1,6 @@
 package com.backendwitheverylang.aliens.features;
 
-import com.backendwitheverylang.aliens.controllers.HealthcheckController;
+import com.backendwitheverylang.aliens.controller.HealthcheckController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

@@ -1,4 +1,4 @@
-package com.backendwitheverylang.aliens.controllers;
+package com.backendwitheverylang.aliens.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
